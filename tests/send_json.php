@@ -12,7 +12,7 @@ $from = ['EUR', 'USD', 'UAH', 'KRW', 'CAD'];
 $to = ['GBR', 'RUB', 'JPY', 'HKD', 'CHF'];
 $countries = ['IE', 'GB', 'FR', 'UA', 'AU', 'RU', 'US', 'IN', 'PK', 'CO', 'BR', 'CA', 'AR'];
 $j = 0;
-while($j < 5) {
+while($j < 3) {
     $j++;
     $i = 0;
     $sec = rand(1,3);
@@ -47,7 +47,7 @@ while($j < 5) {
         ));
 
         $response = curl_exec($curl);
-//        echo "Response: {$response}\n";
+        echo "Response: {$response}\n";
         $i++;
     }
 }

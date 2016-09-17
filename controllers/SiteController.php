@@ -54,6 +54,14 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $redis = Yii::$app->redis;
+        $id = $redis->get('id');
+        $data = [];
+        for($i = $id - 200; $i < $id; $i++) {
+            $data[] = json_decode($redis->hget('messages', 'message'.$i), 1);
+        }
+        return $this->render('index', [
+            'data' => $data,
+        ]);
     }
 }

@@ -23,7 +23,20 @@ $this->title = 'CurrencyFair Task';
                             <th>Date/Time</th>
                         </thead>
                         <tbody>
-                            <tr><td colspan="6">No activity</td></tr>
+                            <?php if(empty($data)):?>
+                                <tr><td colspan="6">No activity</td></tr>
+                            <?php else:?>
+                                <?php for($i = count($data)-1; $i >= count($data)-18-1; $i--):?>
+                                    <tr>
+                                        <td><?=$data[$i]['userId']?></td>
+                                        <td><?=$data[$i]['originatingCountry']?></td>
+                                        <td><?=$data[$i]['currencyFrom'].'/'.$data[$i]['currencyTo']?></td>
+                                        <td><?=$data[$i]['amountSell'].'/'.$data[$i]['amountBuy']?></td>
+                                        <td><?=number_format($data[$i]['rate'], 2)?></td>
+                                        <td><?=$data[$i]['timePlaced']?></td>
+                                    </tr>
+                                <?php endfor;?>
+                            <?php endif;?>
                         </tbody>
                     </table>
                 </div>
