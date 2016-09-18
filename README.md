@@ -176,4 +176,4 @@ To run tests you should run `codecept run`(if codecept was installed globally) f
 To generate and send random `JSON` data to the server you can run `send_json.php` from `tests` folder. To run it use `php send_json.php` command.
 
 
-THANK FOR READING)
+THANK YOU FOR READING)
