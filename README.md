@@ -42,6 +42,7 @@ APPROACH / SOLUTION
 - To solve current problem were chosen Yii2 Framework to manage all requests and render views.
 - All frontend work is done using Bootstrap.
 - All data was saved in Redis DB
+
 ###Message Consumption - Hard
 I have chosen Redis DB to save posted data as Redis has good performance characteristics. 
 All messages are saved in `messages` hSet(hash set). hSet gives constant time complexity for saving and retrieving data from Redis.
@@ -67,6 +68,7 @@ Client should receive JSON data in the next format to check that he/she send cor
   "message": "Error or success message"
 }
 ```
+
 ###Message Processor - Average & Hard
 After data are saved in DB we can process it and save it in DB in the way we like. 
 To process data was decided to use `Observer` template. Two interfaces are located in `models/interfaces` folder.
@@ -78,6 +80,7 @@ Using `Processor` interface we can create more trade processors classes, for exa
 - TradeUserProcessor - to collect data grouped by user
 - TradeCountryProcessor - to collect data grouped by country 
 - etc.
+
 ###Message Frontend - Average & Hard
 As said before socket.io is used for real-time graphics/maps.
 **Average**
@@ -86,6 +89,7 @@ Processed data for average rage of currency pairs (EUR/GBR) are displayed on the
  The result should looks like this:
  ![Currency Pair Rates](http://image.prntscr.com/image/3fcf62f68218408585df9605ee9badcf.png)
  **Hard**
+ 
  The global map with real-time data and table are located on the main page. 
  When somebody post a message to our Message Consumer url the world map should display the originating country from which data was sent. 
  For example, if we send data with `"originatingCounty": "CA"` then we should see that 'CA' is appear under `Canada` on the map and the message should appear in the messages table. Label should disappear in a second or after new data is arrived.
