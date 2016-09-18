@@ -83,7 +83,8 @@ Using `Processor` interface we can create more trade processors classes, for exa
 
 ###Message Frontend - Average & Hard
 As said before socket.io is used for real-time graphics/maps.
-**Average**
+**Average** 
+
 Processed data for average rage of currency pairs (EUR/GBR) are displayed on the following link 
 `http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=site/rate`. You also can go to this link clicking on 'Currency Pair Rates' link on top navigation panel.
  The result should looks like this:
