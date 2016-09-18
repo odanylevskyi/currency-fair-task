@@ -51,14 +51,6 @@ class TradeRateProcessor implements Processor
             $avg   = ($avg * $count + $this->message->rate) / ($count + 1);
             $redis->hset($this->key, 'count', $count + 1);
             $redis->hset($this->key, 'avg', $avg);
-            Yii::$app->redis->executeCommand('PUBLISH', [
-                'channel' => $this->channel,
-                'message' => Json::encode([
-                    'currencyFrom' => $this->message->currencyFrom,
-                    'currencyTo' => $this->message->currencyTo,
-                    'avg' => $avg,
-                ]),
-            ]);
         } catch (\Exception $e) {
             throw new ErrorException($e->getMessage());
         }
