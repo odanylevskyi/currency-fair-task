@@ -47,7 +47,7 @@ while($j < 3) {
         ));
 
         $response = curl_exec($curl);
-        echo "Response: {$response}\n";
+//        echo "Response: {$response}\n";
         $i++;
     }
 }

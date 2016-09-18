@@ -1,102 +1,153 @@
-Yii 2 Basic Project Template
-============================
+CurrencyFair - Task
+===================
+###Message Consumption
+**I have chosen Hard**
+#####Goal
+Expose an endpoint which can consume trade messages. Trade messages will be POST’d (assume by CurrencyFair during review) to this endpoint and will take the JSON form of:
+```
+{
+    "userId": "134256", 
+    "currencyFrom": "EUR", 
+    "currencyTo": "GBP", 
+    "amountSell": 1000, 
+    "amountBuy": 747.10, 
+    "rate": 0.7471, 
+    "timePlaced" : "24-JAN-15 10:27:44", 
+    "originatingCountry" : "FR"
+}
+```
+#####Hard
+The message consumption component is the main piece of work you focus on, and can handle a large number of messages per second.
 
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
+###Message Processor
+**I have chosen Avarage & Hard**
+#####Goal
+Process messages received via the message consumption endpoint. Depending on what you wish to do, these messages can be processed in different ways.
+#####Average
+Analyse incoming messages for trends, and transform data to prepare for a more visual frontend rendering, e.g. graphing currency volume of messages from one particular currency pair market (EUR/GBP).
+#####Hard
+Messages are sent through a realtime framework which pushes transformed data to a Socket.io frontend.
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+###Message Frontend
+**I have chosen Avarage & Hard**
+#####Goal
+Render the data from the output of the other two components.
+#####Average
+Render a graph of processed data from the messages consumed.
+#####Hard
+Render a global map with a realtime visualisation of messages being processed.
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
+APPROACH / SOLUTION
+-------------------
+- To solve current problem were chosen Yii2 Framework to manage all requests and render views.
+- All frontend work is done using Bootstrap.
+- All data was saved in Redis DB
+###Message Consumption - Hard
+I have chosen Redis DB to save posted data as Redis has good performance characteristics. 
+All messages are saved in `messages` hSet(hash set). hSet gives constant time complexity for saving and retrieving data from Redis.
+All saved messages can be processed one a day, hour, etc. and saved in, for example, MySQL/MariaDB to use it in future.
+Data limitation: you can send as many data as you can. The only limitation is characteristics of the server.
+To protect server from unauthorized data was decided to use tokens. You can use the next tokens for testing: 
+```
+5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl
+sgX6mvjmtOTN9ZSTTwZWN501IZeY95Ka
+f9jP4ub9K5JOj920S6jy30o88oqi1uz7
+```
+Data should be sent to the next link:
+`http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=consumer/index&token=5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl`
+`token` can be changed.
+The code to manage data is located in `controllers/ConsumerController.php` file. 
+Model for posted message is located in `models/TradeMessage.php`. 
+All data should pass validation before saving. Yii framework validation functionality was used to validate data.
+Client should receive JSON data in the next format to check that he/she send correct data: 
+```
+{
+  "status": "eg. 200/500/404",
+  "code": "error code",
+  "message": "Error or success message"
+}
+```
+###Message Processor - Average & Hard
+After data are saved in DB we can process it and save it in DB in the way we like. 
+To process data was decided to use `Observer` template. Two interfaces are located in `models/interfaces` folder.
+`Observer` and `Processor` interfaces implements `Observer` template.
+An implementation of `Observer` interface are located in `model/TradeObserver.php` file. `TradeObserver` used to notify NodeJS server that data was saved in redis. NodeJS server send data to the socket.io clients that are connected to the specific socket.
+NodeJS server are located in `nodejs/server.js` file. It is configured to listen Redis channels (in my case `notification`) and communicate with `socket.io`.
+`TradeRateProcessor` was created to process data and save average rate for currency pairs (eg. UAH/RUB). This data is used in frontend for chart.
+Using `Processor` interface we can create more trade processors classes, for example: 
+- TradeUserProcessor - to collect data grouped by user
+- TradeCountryProcessor - to collect data grouped by country 
+- etc.
+###Message Frontend - Average & Hard
+As said before socket.io is used for real-time graphics/maps.
+**Average**
+Processed data for average rage of currency pairs (EUR/GBR) are displayed on the following link 
+`http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=site/rate`. You also can go to this link clicking on 'Currency Pair Rates' link on top navigation panel.
+ The result should looks like this:
+ ![Currency Pair Rates](http://image.prntscr.com/image/3fcf62f68218408585df9605ee9badcf.png)
+ **Hard**
+ The global map with real-time data and table are located on the main page. 
+ When somebody post a message to our Message Consumer url the world map should display the originating country from which data was sent. 
+ For example, if we send data with `"originatingCounty": "CA"` then we should see that 'CA' is appear under `Canada` on the map and the message should appear in the messages table. Label should disappear in a second or after new data is arrived.
+ Here is an example: 
+ ![Real-time world map](http://image.prntscr.com/image/d7b69f67a75b45c6bde02cf099c34560.png)
+ socket.io clint is located in `web/js/socket-client.js` file.
 
 DIRECTORY STRUCTURE
 -------------------
 
       assets/             contains assets definition
-      commands/           contains console commands (controllers)
       config/             contains application configurations
       controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
+      models/             contains model classes and interfaces
       runtime/            contains files generated during runtime
       tests/              contains various tests for the basic application
       vendor/             contains dependent 3rd-party packages
       views/              contains view files for the Web application
       web/                contains the entry script and Web resources
 
-
-
-REQUIREMENTS
-------------
-
-The minimum requirement by this project template that your Web server supports PHP 5.4.0.
-
-
-INSTALLATION
-------------
-
-### Install from an Archive File
-
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
-
-Set cookie validation key in `config/web.php` file to some random secret string:
-
-```php
-'request' => [
-    // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-    'cookieValidationKey' => '<secret random string goes here>',
-],
-```
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this project template using the following command:
-
-~~~
-php composer.phar global require "fxp/composer-asset-plugin:~1.1.1"
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
+REQUIREMENTS / TECHNOLOGIES
+---------------------------
+1. Apache v2.4([website](https://httpd.apache.org/))
+2. The minimum requirement by this project template that your Web server supports PHP 5.4.0.([website](http://php.net))
+3. Redis v3([website](http://redis.io/))
+4. NodeJS v6([website](https://nodejs.org/en/))
+5. Socket.io([website](http://socket.io/))
+6. Composer([website](https://getcomposer.org/))
+7. Codeception test framework([website](http://codeception.com/))
+8. JQuery([website](https://jquery.com/))
+9. Yii2 Framework([website](http://www.yiiframework.com/))
+10. Bootstrap([website](http://getbootstrap.com/))
 
 CONFIGURATION
 -------------
-
-### Database
-
-Edit the file `config/db.php` with real data, for example:
+**Technologies like NodeJS, Apache etc. should be installed and configured based on the technology specification. All configuration can be found on technologies websites**
+##### Redis DB
+Edit the file `config/web.php` with real data, for example:
 
 ```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
+'redis' => [
+    'class' => 'yii\redis\Connection',
+    'hostname' => 'localhost',
+    'port' => 6379,
+    'database' => 0,
+],
+```
+#####Tokens
+Edit the file `config/params.php` with your own tokens. You can use current tokens:
+```php
+'tokens' => [
+   '5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl',
+   'sgX6mvjmtOTN9ZSTTwZWN501IZeY95Ka',
+   'f9jP4ub9K5JOj920S6jy30o88oqi1uz7',
+],
 ```
 
-**NOTES:**
-- Yii won't create the database for you, this has to be done manually before you can access it.
-- Check and edit the other files in the `config/` directory to customize your application as required.
-- Refer to the README in the `tests` directory for information specific to basic application tests.
+TESTING
+-------
+**All project tests located in `tests` folder.**
+`Codeception` test framework are used for testing the project.
+#####UNIT TESTS
+To run tests you should run `codecept run`(if codecept was installed globally) from `tests` folder.
+#####JSON GENERATION AND POST
+To generate and send `JSON` data to the server you can run `send_json.php` from `tests` folder. To run it use `php send_json.php` command.

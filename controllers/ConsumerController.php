@@ -13,6 +13,7 @@ use app\models\TradeRateProcessor;
 class ConsumerController extends Controller
 {
     public $enableCsrfValidation = false;
+
     /**
      * @inheritdoc
      */
@@ -31,7 +32,7 @@ class ConsumerController extends Controller
     /**
      * Message consumer action.
      *
-     * @return string
+     * @return json
      */
     public function actionIndex($token = null)
     {
@@ -67,9 +68,17 @@ class ConsumerController extends Controller
             //Run processor to trigger socket.io and update bar charts
             $processor = new TradeRateProcessor($message);
             $processor->run();
-            return true;
+            return json_encode([
+                'status' => 200,
+                'code' => 0,
+                'message' => 'Success',
+            ]);
         } catch (\Exception $e) {
-            return $e->getMessage();
+                return json_encode([
+                    'status' => 500,
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 }

@@ -14,6 +14,7 @@ $( document ).ready(function() {
     var counter = 0;
     socket.on('notification', function (data) {
         var message = JSON.parse(data);
+        counter = $('.messages > table > tbody > tr').length;
         if (counter == 0) {
             $('.messages > table > tbody > tr').remove();
         }

@@ -59,7 +59,6 @@ class TradeRateProcessor implements Processor
                     'avg' => $avg,
                 ]),
             ]);
-            var_dump($this->key);
         } catch (\Exception $e) {
             throw new ErrorException($e->getMessage());
         }

@@ -26,7 +26,7 @@ $this->title = 'CurrencyFair Task';
                             <?php if(empty($data)):?>
                                 <tr><td colspan="6">No activity</td></tr>
                             <?php else:?>
-                                <?php for($i = count($data)-1; $i >= count($data)-18-1; $i--):?>
+                                <?php for($i = count($data)-1; $i >= count($data)-19 && $i >= 0; $i--):?>
                                     <tr>
                                         <td><?=$data[$i]['userId']?></td>
                                         <td><?=$data[$i]['originatingCountry']?></td>
