@@ -35,6 +35,8 @@ class TradeRateProcessorTest extends TestCase
             $this->assertEquals(1, 0+$redis->hget($processor->getKey(), 'count'));
             $this->assertEquals($message->currencyFrom, $redis->hget($processor->getKey(), 'from'));
             $this->assertEquals($message->currencyTo, $redis->hget($processor->getKey(), 'to'));
+            $count = $redis->del($processor->getKey());
+            $this->assertEquals(1, $count);
         }
     }
 }

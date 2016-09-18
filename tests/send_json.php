@@ -12,7 +12,7 @@ $from = ['EUR', 'USD', 'UAH', 'KRW', 'CAD'];
 $to = ['GBR', 'RUB', 'JPY', 'HKD', 'CHF'];
 $countries = ['IE', 'GB', 'FR', 'UA', 'AU', 'RU', 'US', 'IN', 'PK', 'CO', 'BR', 'CA', 'AR'];
 $j = 0;
-while($j < 3) {
+while(1) {
     $j++;
     $i = 0;
     $sec = rand(1,3);
