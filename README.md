@@ -44,9 +44,9 @@ APPROACH / SOLUTION
 - All data was saved in Redis DB
 
 ###Message Consumption - Hard
-I have chosen Redis DB to save posted data as Redis has good performance characteristics. 
-All messages are saved in `messages` hSet(hash set). hSet gives constant time complexity for saving and retrieving data from Redis.
-All saved messages can be processed one a day, hour, etc. and saved in, for example, MySQL/MariaDB to use it in future.
+I have chosen Redis DB to save posted data. Redis has good performance characteristics. 
+All messages are saved in `messages` hSet (hash set). hSet gives constant time complexity for saving and retrieving data from Redis.
+All saved messages can be processed daily, hourly, etc. and saved in, for example, MySQL/MariaDB to use it in future.
 Data limitation: you can send as many data as you can. The only limitation is characteristics of the server.
 To protect server from unauthorized data was decided to use tokens. You can use the next tokens for testing: 
 ```
@@ -57,10 +57,10 @@ f9jP4ub9K5JOj920S6jy30o88oqi1uz7
 Data should be sent to the next link:
 `http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=consumer/index&token=5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl`
 `token` can be changed.
-The code to manage data is located in `controllers/ConsumerController.php` file. 
+The code for data receiving is located in `controllers/ConsumerController.php` file. 
 Model for posted message is located in `models/TradeMessage.php`. 
-All data should pass validation before saving. Yii framework validation functionality was used to validate data.
-Client should receive JSON data in the next format to check that he/she send correct data: 
+All data should pass validation before saving. Yii framework validation functionality was used to validate received data.
+To check message status `ConsumerController` return JSON data in the next format : 
 ```
 {
   "status": "eg. 200/500/404",
@@ -68,14 +68,14 @@ Client should receive JSON data in the next format to check that he/she send cor
   "message": "Error or success message"
 }
 ```
+Cliend can use current data to check message correctness.
 
 ###Message Processor - Average & Hard
-After data are saved in DB we can process it and save it in DB in the way we like. 
-To process data was decided to use `Observer` template. Two interfaces are located in `models/interfaces` folder.
-`Observer` and `Processor` interfaces implements `Observer` template.
-An implementation of `Observer` interface are located in `model/TradeObserver.php` file. `TradeObserver` used to notify NodeJS server that data was saved in redis. NodeJS server send data to the socket.io clients that are connected to the specific socket.
+After data are validated and saved in DB `ConsumerController` processes and saves changed data in DB in the way we like. 
+To process data was decided to use `Observer` pattern. Two interfaces that implements the pattern are located in `models/interfaces` folder. 
+An implementation of `Observer` interface are located in `model/TradeObserver.php` file. `TradeObserver` used to notify NodeJS server that data was saved in Redis. NodeJS server send data to the socket.io clients that are connected to the specific socket.
 NodeJS server are located in `nodejs/server.js` file. It is configured to listen Redis channels (in my case `notification`) and communicate with `socket.io`.
-`TradeRateProcessor` was created to process data and save average rate for currency pairs (eg. UAH/RUB). This data is used in frontend for chart.
+`TradeRateProcessor` was created to process data and save average rate for currency pairs (eg. UAH/RUB). This data is used in frontend for bar charts.
 Using `Processor` interface we can create more trade processors classes, for example: 
 - TradeUserProcessor - to collect data grouped by user
 - TradeCountryProcessor - to collect data grouped by country 
@@ -86,7 +86,7 @@ As said before socket.io is used for real-time graphics/maps.
 
 **Average** 
 
-Processed data for average rage of currency pairs (EUR/GBR) are displayed on the following link 
+Average rate of currency pairs (EUR/GBR) are displayed on the following link 
 `http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=site/rate`. You also can go to this link clicking on 'Currency Pair Rates' link on top navigation panel.
  The result should looks like this:
  ![Currency Pair Rates](http://image.prntscr.com/image/3fcf62f68218408585df9605ee9badcf.png)
@@ -94,11 +94,11 @@ Processed data for average rage of currency pairs (EUR/GBR) are displayed on the
  **Hard**
  
  The global map with real-time data and table are located on the main page. 
- When somebody post a message to our Message Consumer url the world map should display the originating country from which data was sent. 
- For example, if we send data with `"originatingCounty": "CA"` then we should see that 'CA' is appear under `Canada` on the map and the message should appear in the messages table. Label should disappear in a second or after new data is arrived.
+ When somebody post a message to our Message Consumer (`ConsumerController.php`) url the world map should display the originating country from which data was sent. 
+ For example, if we send data with `"originatingCounty": "CA"` then we should see that 'CA' appears under `Canada` on the map and the message should appear in the messages table. Label should disappear in a second or after new data is arrived.
  Here is an example: 
  ![Real-time world map](http://image.prntscr.com/image/d7b69f67a75b45c6bde02cf099c34560.png)
- socket.io clint is located in `web/js/socket-client.js` file.
+ `socket.io` clint is located in `web/js/socket-client.js` file.
 
 DIRECTORY STRUCTURE
 -------------------
@@ -141,7 +141,7 @@ Edit the file `config/web.php` with real data, for example:
 ],
 ```
 #####Tokens
-Edit the file `config/params.php` with your own tokens. You can use current tokens:
+Edit the file `config/params.php` with your own tokens. You can use current tokens for testing:
 ```php
 'tokens' => [
    '5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl',
@@ -165,4 +165,7 @@ To run tests you should run `codecept run`(if codecept was installed globally) f
 
 #####JSON GENERATION AND POST
 
-To generate and send `JSON` data to the server you can run `send_json.php` from `tests` folder. To run it use `php send_json.php` command.
+To generate and send random `JSON` data to the server you can run `send_json.php` from `tests` folder. To run it use `php send_json.php` command.
+
+
+THANK FOR READING)
