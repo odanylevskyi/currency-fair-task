@@ -47,7 +47,9 @@ APPROACH / SOLUTION
 I have chosen Redis DB to save posted data. Redis has good performance characteristics. 
 All messages are saved in `messages` hSet (hash set). hSet gives constant time complexity for saving and retrieving data from Redis.
 All saved messages can be processed daily, hourly, etc. and saved in, for example, MySQL/MariaDB to use it in future.
+
 Data limitation: you can send as many data as you can. The only limitation is characteristics of the server.
+
 To protect server from unauthorized data was decided to use tokens. You can use the next tokens for testing: 
 ```
 5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl
@@ -55,8 +57,11 @@ sgX6mvjmtOTN9ZSTTwZWN501IZeY95Ka
 f9jP4ub9K5JOj920S6jy30o88oqi1uz7
 ```
 Data should be sent to the next link:
+
 `http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=consumer/index&token=5yKU4UIv9DQmO30LPW8ShMPkUXPAewrl`
+
 `token` can be changed.
+
 The code for data receiving is located in `controllers/ConsumerController.php` file. 
 Model for posted message is located in `models/TradeMessage.php`. 
 All data should pass validation before saving. Yii framework validation functionality was used to validate received data.
@@ -75,7 +80,10 @@ After data are validated and saved in DB `ConsumerController` processes and save
 To process data was decided to use `Observer` pattern. Two interfaces that implements the pattern are located in `models/interfaces` folder. 
 An implementation of `Observer` interface are located in `model/TradeObserver.php` file. `TradeObserver` used to notify NodeJS server that data was saved in Redis. NodeJS server send data to the socket.io clients that are connected to the specific socket.
 NodeJS server are located in `nodejs/server.js` file. It is configured to listen Redis channels (in my case `notification`) and communicate with `socket.io`.
+To run NodeJS server.js you need to make the following command from `nodejs` folder: `node server.js`
+
 `TradeRateProcessor` was created to process data and save average rate for currency pairs (eg. UAH/RUB). This data is used in frontend for bar charts.
+
 Using `Processor` interface we can create more trade processors classes, for example: 
 - TradeUserProcessor - to collect data grouped by user
 - TradeCountryProcessor - to collect data grouped by country 
@@ -87,7 +95,7 @@ As said before socket.io is used for real-time graphics/maps.
 **Average** 
 
 Average rate of currency pairs (EUR/GBR) are displayed on the following link 
-`http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=site/rate`. You also can go to this link clicking on 'Currency Pair Rates' link on top navigation panel.
+`http://ec2-52-43-235-109.us-west-2.compute.amazonaws.com/index.php?r=site/rate`. You also can go to this link by clicking on 'Currency Pair Rates' link on the top navigation panel.
  The result should looks like this:
  ![Currency Pair Rates](http://image.prntscr.com/image/3fcf62f68218408585df9605ee9badcf.png)
  
