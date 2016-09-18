@@ -154,11 +154,15 @@ TESTING
 -------
 **All project tests located in `tests` folder.**
 `Codeception` test framework are used for testing the project.
+
 #####UNIT TESTS
 There is only 3 unit tests: 
 - TradeMessageTest/testValidation
 - TradeMessageTest/testSave
 - TradeRateProcessorTest/testRun
+
 To run tests you should run `codecept run`(if codecept was installed globally) from `tests` folder.
+
 #####JSON GENERATION AND POST
+
 To generate and send `JSON` data to the server you can run `send_json.php` from `tests` folder. To run it use `php send_json.php` command.
